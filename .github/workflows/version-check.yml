@@ -57,7 +57,7 @@ jobs:
             ;;
           "update-failed")
             echo "❌ Version file update failed"
-            exit 1
+            echo "::error::Version file update failed. Terminating workflow."
             ;;
           "")
             echo "⚠️  Skip reason not provided"
