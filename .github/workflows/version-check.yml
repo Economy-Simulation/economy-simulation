@@ -248,8 +248,15 @@ jobs:
         last_commit = repo.head.commit
         if "🤖 Auto-bump version" in last_commit.message:
             print("ℹ️  This is a version bump commit from the bot, skipping analysis")
+            # Set an environment variable to signal that we should skip all subsequent steps
+            os.environ['SKIP_VERSIONING'] = 'true'
             import sys
             sys.exit(0)
+        
+        # Check if versioning should be skipped
+        if os.getenv('SKIP_VERSIONING') == 'true':
+            print("ℹ️  Skipping versioning as per environment variable")
+            return
         
         # Analyze and determine bump type
         bump_type, reason = analyze_changes()
