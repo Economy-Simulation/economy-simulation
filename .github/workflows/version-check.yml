@@ -43,7 +43,6 @@ jobs:
         python << 'EOF'
         import os
         import re
-        import sys
         import git
         import subprocess
         from packaging import version
