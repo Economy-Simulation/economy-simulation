@@ -270,7 +270,7 @@ def main():
             "should-skip": "true",
             "skip-reason": "env-variable"
         })
-        sys.exit(0)
+        return
     
     # Analyze and determine bump type
     bump_type, reason = analyze_changes()
