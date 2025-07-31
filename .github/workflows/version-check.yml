@@ -282,7 +282,7 @@ jobs:
             with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
                 f.write("should-skip=true\n")
                 f.write("skip-reason=update-failed\n")
-            exit(1)
+            sys.exit(1)
         
         # Output for GitHub
         with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
