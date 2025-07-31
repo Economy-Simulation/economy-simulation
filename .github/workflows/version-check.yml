@@ -1,0 +1,485 @@
+name: Smart Auto-Versioning
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  smart-version:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    name: Smart Version Analysis & Auto-Bump
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        pip install hatch packaging gitpython
+        
+    - name: Intelligent Version Analysis
+      id: analyze
+      run: |
+        python << 'EOF'
+        import os
+        import re
+        import git
+        import subprocess
+        from packaging import version
+        
+        def run_cmd(cmd):
+            return subprocess.check_output(cmd, shell=True, text=True).strip()
+        
+        def analyze_changes():
+            """Analyze git changes to determine version bump type"""
+            try:
+                # Get the last commit (since this runs on push to main)
+                repo = git.Repo('.')
+                
+                # Get changes in the last commit
+                last_commit = repo.head.commit
+                changes = last_commit.diff(last_commit.parents[0] if last_commit.parents else None)
+                
+                major_indicators = []
+                minor_indicators = []
+                patch_indicators = []
+                
+                print("🔍 Analyzing code changes...")
+                
+                for change in changes:
+                    file_path = change.a_path or change.b_path
+                    if not file_path:
+                        continue
+                        
+                    print(f"  📁 Analyzing: {file_path}")
+                    
+                    # Check file types and change patterns
+                    if file_path.endswith(('.py', '.js', '.ts', '.java', '.cpp', '.c')):
+                        if change.change_type == 'D':
+                            major_indicators.append(f"Deleted core file: {file_path}")
+                        elif change.change_type == 'A':
+                            if 'api' in file_path.lower() or 'interface' in file_path.lower():
+                                minor_indicators.append(f"New API/interface: {file_path}")
+                            else:
+                                minor_indicators.append(f"New file: {file_path}")
+                        elif change.change_type == 'M':
+                            # Analyze the actual diff content
+                            try:
+                                diff_text = change.diff.decode('utf-8') if hasattr(change.diff, 'decode') else str(change.diff)
+                                
+                                # Major change indicators
+                                if any(pattern in diff_text.lower() for pattern in [
+                                    'class.*deleted', 'def.*deleted', 'function.*deleted',
+                                    'breaking change', 'deprecated', 'removed',
+                                    'incompatible', 'migration required'
+                                ]):
+                                    major_indicators.append(f"Breaking change detected in {file_path}")
+                                
+                                # Count lines changed
+                                additions = diff_text.count('\n+')
+                                deletions = diff_text.count('\n-')
+                                total_changes = additions + deletions
+                                
+                                if total_changes > 100:
+                                    if 'api' in file_path.lower() or 'core' in file_path.lower():
+                                        major_indicators.append(f"Major refactoring in core file: {file_path} ({total_changes} lines)")
+                                    else:
+                                        minor_indicators.append(f"Significant changes: {file_path} ({total_changes} lines)")
+                                elif total_changes > 20:
+                                    minor_indicators.append(f"Medium changes: {file_path} ({total_changes} lines)")
+                                else:
+                                    patch_indicators.append(f"Small fix: {file_path} ({total_changes} lines)")
+                                    
+                                # Feature indicators
+                                if any(pattern in diff_text.lower() for pattern in [
+                                    'def ', 'class ', 'function ', 'new.*feature',
+                                    'add.*method', 'implement'
+                                ]):
+                                    minor_indicators.append(f"New functionality in {file_path}")
+                                    
+                            except Exception as e:
+                                print(f"  ⚠️  Could not analyze diff for {file_path}: {e}")
+                                patch_indicators.append(f"Modified: {file_path}")
+                    
+                    # Configuration changes
+                    elif file_path.endswith(('.json', '.yaml', '.yml', '.toml', '.cfg', '.ini')):
+                        if 'package.json' in file_path or 'pyproject.toml' in file_path:
+                            minor_indicators.append(f"Package configuration updated: {file_path}")
+                        else:
+                            patch_indicators.append(f"Config updated: {file_path}")
+                    
+                    # Documentation
+                    elif file_path.endswith(('.md', '.rst', '.txt')):
+                        patch_indicators.append(f"Documentation updated: {file_path}")
+                    
+                    # Tests
+                    elif 'test' in file_path.lower() or file_path.endswith('_test.py'):
+                        patch_indicators.append(f"Tests updated: {file_path}")
+                
+                # Analyze commit message for additional context
+                commit_msg = last_commit.message.lower()
+                if any(word in commit_msg for word in ['break', 'breaking', 'major', 'incompatible']):
+                    major_indicators.append(f"Breaking change indicated in commit: {last_commit.message[:50]}...")
+                elif any(word in commit_msg for word in ['feat', 'feature', 'add', 'new', 'implement']):
+                    minor_indicators.append(f"Feature indicated in commit: {last_commit.message[:50]}...")
+                elif any(word in commit_msg for word in ['fix', 'bug', 'patch', 'hotfix']):
+                    patch_indicators.append(f"Fix indicated in commit: {last_commit.message[:50]}...")
+                
+                print(f"\n📊 Analysis Results:")
+                print(f"  🚨 Major indicators: {len(major_indicators)}")
+                for indicator in major_indicators[:3]:  # Show first 3
+                    print(f"    - {indicator}")
+                    
+                print(f"  ✨ Minor indicators: {len(minor_indicators)}")
+                for indicator in minor_indicators[:3]:
+                    print(f"    - {indicator}")
+                    
+                print(f"  🐛 Patch indicators: {len(patch_indicators)}")
+                for indicator in patch_indicators[:3]:
+                    print(f"    - {indicator}")
+                
+                # Decision logic
+                if major_indicators:
+                    return "major", major_indicators[0]
+                elif minor_indicators:
+                    return "minor", minor_indicators[0]
+                elif patch_indicators:
+                    return "patch", patch_indicators[0]
+                else:
+                    return "patch", "Default patch bump for changes"
+                    
+            except Exception as e:
+                print(f"❌ Error during analysis: {e}")
+                return "patch", "Fallback patch bump due to analysis error"
+        
+        # Get current version
+        current_version = run_cmd("hatch version")
+        print(f"📦 Current version: {current_version}")
+        
+        # Analyze and determine bump type
+        bump_type, reason = analyze_changes()
+        print(f"\n🎯 Decision: {bump_type.upper()} bump")
+        print(f"📝 Reason: {reason}")
+        
+        # Apply version bump
+        print(f"\n⬆️  Applying {bump_type} version bump...")
+        new_version = run_cmd(f"hatch version {bump_type}")
+        print(f"✅ Version bumped: {current_version} → {new_version}")
+        
+        # Output for GitHub
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            f.write(f"old-version={current_version}\n")
+            f.write(f"new-version={new_version}\n")
+            f.write(f"bump-type={bump_type}\n")
+            f.write(f"reason={reason}\n")
+            
+        # Create detailed summary
+        with open("version_summary.txt", "w") as f:
+            bump_emoji = {"major": "🚨", "minor": "✨", "patch": "🐛"}
+            bump_desc = {"major": "Breaking changes", "minor": "New features", "patch": "Bug fixes"}
+            
+            f.write(f"## 🤖 Smart Auto-Version Update\n\n")
+            f.write(f"**{current_version}** → **{new_version}**\n\n")
+            f.write(f"**Type:** {bump_type.upper()} {bump_emoji[bump_type]} - {bump_desc[bump_type]}\n\n")
+            f.write(f"### 🧠 AI Analysis\n")
+            f.write(f"**Decision Reason:** {reason}\n\n")
+            f.write(f"### Details\n")
+            f.write(f"- Previous version: `{current_version}`\n")
+            f.write(f"- New version: `{new_version}`\n")
+            f.write(f"- Bump type: {bump_type.upper()}\n")
+            f.write(f"- Analysis: Automatic based on code changes\n\n")
+            f.write(f"---\n")
+            f.write(f"*🚀 This version will be automatically tagged and released.*")
+            
+        EOF
+        
+    - name: Commit version bump
+      run: |
+        git config user.name "smart-versioning[bot]"
+        git config user.email "smart-versioning[bot]@users.noreply.github.com"
+        git add backend/global_economy_sim/__about__.py
+        git commit -m "🤖 Auto-bump version ${{ steps.analyze.outputs.old-version }} → ${{ steps.analyze.outputs.new-version }} (${{ steps.analyze.outputs.bump-type }})"
+        git push origin main
+        
+    - name: Create and push tag
+      run: |
+        git tag -a "v${{ steps.analyze.outputs.new-version }}" -m "🤖 Smart auto-release v${{ steps.analyze.outputs.new-version }}"
+        git push origin "v${{ steps.analyze.outputs.new-version }}"
+        echo "✅ Created and pushed tag v${{ steps.analyze.outputs.new-version }}"
+        
+    - name: Create summary
+      run: |
+        cat version_summary.txt >> $GITHUB_STEP_SUMMARY
+
+  auto-release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    name: Create Release
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install Hatch
+      run: pip install hatch
+      
+    - name: Build package
+      run: hatch build
+      
+    - name: Generate release notes
+      id: release-notes
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        
+        # Generate changelog from recent commits
+        cat << EOF > release_notes.md
+        ## 🚀 Global Economy Simulation v$VERSION
+        
+        > *This release was automatically created by smart AI-powered version analysis*
+        
+        ### What's Changed
+        
+        $(git log --pretty=format:"- %s (%an)" $(git describe --tags --abbrev=0 HEAD^)..HEAD | head -10)
+        
+        ### Installation
+        
+        \`\`\`bash
+        pip install global-economy-sim==$VERSION
+        \`\`\`
+        
+        ### Development Setup
+        
+        \`\`\`bash
+        git clone https://github.com/filip-herceg/economy-simulation.git
+        cd economy-simulation
+        hatch env create
+        hatch shell
+        \`\`\`
+        
+        **Full Changelog**: https://github.com/filip-herceg/economy-simulation/compare/$(git describe --tags --abbrev=0 HEAD^)...v$VERSION
+        EOF
+        
+    - name: Create GitHub Release
+      id: create-release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: "🤖 Smart Release v${{ steps.release-notes.outputs.version }}"
+        body_path: release_notes.md
+        draft: false
+        prerelease: false
+
+  pr-preview:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    name: Preview Version Impact
+    
+    steps:
+    - name: Checkout PR
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: pip install hatch packaging gitpython
+      
+    - name: Analyze PR Impact
+      run: |
+        python << 'EOF'
+        import git
+        import subprocess
+        
+        def run_cmd(cmd):
+            return subprocess.check_output(cmd, shell=True, text=True).strip()
+        
+        # Get base version
+        subprocess.run(["git", "checkout", "origin/main"], check=True)
+        base_version = run_cmd("hatch version")
+        
+        # Go back to PR
+        subprocess.run(["git", "checkout", "-"], check=True)
+        
+        # Analyze changes (simplified for PR preview)
+        repo = git.Repo('.')
+        
+        # Get diff between main and PR
+        main_commit = repo.commit('origin/main')
+        pr_commit = repo.head.commit
+        changes = main_commit.diff(pr_commit)
+        
+        total_files = len(changes)
+        python_files = len([c for c in changes if (c.a_path or c.b_path or '').endswith('.py')])
+        new_files = len([c for c in changes if c.change_type == 'A'])
+        deleted_files = len([c for c in changes if c.change_type == 'D'])
+        
+        # Simple heuristic for PR preview
+        if deleted_files > 0 or total_files > 10:
+            predicted_bump = "MAJOR 🚨"
+        elif new_files > 0 or python_files > 3:
+            predicted_bump = "MINOR ✨"
+        else:
+            predicted_bump = "PATCH 🐛"
+        
+        summary = f"""## 🔮 Smart Version Preview
+        
+        When this PR is merged, the smart versioning system will likely apply a **{predicted_bump}** bump.
+        
+        ### 📊 Change Analysis
+        - **Files changed:** {total_files}
+        - **Python files:** {python_files}
+        - **New files:** {new_files}
+        - **Deleted files:** {deleted_files}
+        
+        ### 📦 Predicted Version Change
+        **{base_version}** → **{predicted_bump}**
+        
+        ---
+        *This is a preview. The actual version will be determined by AI analysis when merged to main.*
+        """
+        
+        with open("pr_summary.txt", "w") as f:
+            f.write(summary)
+        EOF
+        
+    - name: Comment PR with preview
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const summary = fs.readFileSync('pr_summary.txt', 'utf8');
+          
+          const comments = await github.rest.issues.listComments({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+          
+          const botComment = comments.data.find(comment => 
+            comment.user.login === 'github-actions[bot]' && 
+            comment.body.includes('🔮 Smart Version Preview')
+          );
+          
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              comment_id: botComment.id,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+          } else {
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+          }
+
+  smart-release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    name: Create Release
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Install Hatch
+      run: pip install hatch
+      
+    - name: Build package
+      run: hatch build
+      
+    - name: Generate release notes
+      id: release-notes
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        
+        # Generate changelog from recent commits
+        cat << EOF > release_notes.md
+        ## 🚀 Global Economy Simulation v$VERSION
+        
+        ### What's Changed
+        
+        $(git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD | head -20)
+        
+        ### Installation
+        
+        \`\`\`bash
+        pip install global-economy-sim==$VERSION
+        \`\`\`
+        
+        ### Development Setup
+        
+        \`\`\`bash
+        git clone https://github.com/filip-herceg/economy-simulation.git
+        cd economy-simulation
+        hatch env create
+        hatch shell
+        \`\`\`
+        
+        **Full Changelog**: https://github.com/filip-herceg/economy-simulation/compare/$(git describe --tags --abbrev=0 HEAD^)...v$VERSION
+        EOF
+        
+    - name: Create GitHub Release
+      id: create-release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: "Global Economy Simulation v${{ steps.release-notes.outputs.version }}"
+        body_path: release_notes.md
+        draft: false
+        prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
+        
+    - name: Upload build artifacts
+      if: success()
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_path: ./dist/
+        asset_name: economy-simulation-distributions
+        asset_content_type: application/zip
