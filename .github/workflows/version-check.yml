@@ -43,7 +43,6 @@ jobs:
         python << 'EOF'
         import os
         import re
-        import sys
         import git
         import subprocess
         from packaging import version
@@ -253,7 +252,7 @@ jobs:
             with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
                 f.write("should-skip=true\n")
                 f.write("skip-reason=bot-commit\n")
-            sys.exit()
+            sys.exit(0)
         
         # Check if versioning should be skipped
         if os.getenv('SKIP_VERSIONING') == 'true':
@@ -262,7 +261,7 @@ jobs:
             with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
                 f.write("should-skip=true\n")
                 f.write("skip-reason=env-variable\n")
-            sys.exit()
+            sys.exit(0)
         
         # Analyze and determine bump type
         bump_type, reason = analyze_changes()
