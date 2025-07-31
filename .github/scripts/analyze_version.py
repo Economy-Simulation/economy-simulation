@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
 """
-Smart Version Analysis Script
-
-Analyzes git changes to determine appropriate semantic version bump type
-and updates the version file accordingly.
-"""
-
-#!/usr/bin/env python3
-"""
 Smart Version Analysis Script for GitHub Actions
 
 This script analyzes git changes to automatically determine appropriate semantic version bumps.

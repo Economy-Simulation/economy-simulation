@@ -30,42 +30,57 @@ def get_version_from_file():
 
 def analyze_pr_impact():
     """Analyze PR changes and predict version bump"""
-    # Get base version
-    subprocess.run(["git", "checkout", "origin/main"], check=True)
-    base_version = get_version_from_file()
-    
-    # Go back to PR
-    subprocess.run(["git", "checkout", "-"], check=True)
-    
-    # Analyze changes (simplified for PR preview)
-    repo = git.Repo('.')
-    
-    # Get diff between main and PR
-    main_commit = repo.commit('origin/main')
-    pr_commit = repo.head.commit
-    changes = main_commit.diff(pr_commit)
-    
-    total_files = len(changes)
-    python_files = len([c for c in changes if (c.a_path or c.b_path or '').endswith('.py')])
-    new_files = len([c for c in changes if c.change_type == 'A'])
-    deleted_files = len([c for c in changes if c.change_type == 'D'])
-    
-    # Simple heuristic for PR preview
-    if deleted_files > 0 or total_files > 10:
-        predicted_bump = "MAJOR 🚨"
-    elif new_files > 0 or python_files > 3:
-        predicted_bump = "MINOR ✨"
-    else:
-        predicted_bump = "PATCH 🐛"
-    
-    return {
-        'base_version': base_version,
-        'predicted_bump': predicted_bump,
-        'total_files': total_files,
-        'python_files': python_files,
-        'new_files': new_files,
-        'deleted_files': deleted_files
-    }
+    try:
+        # Get base version from origin/main without checking out
+        repo = git.Repo('.')
+        
+        # Get base version by reading file content from main branch
+        main_commit = repo.commit('origin/main')
+        try:
+            # Read __about__.py from main branch
+            about_content = main_commit.tree['backend/global_economy_sim/__about__.py'].data_stream.read().decode('utf-8')
+            match = re.search(r'__version__\s*=\s*["\']([^"\']+)["\']', about_content)
+            base_version = match.group(1) if match else "0.1.0"
+        except (KeyError, AttributeError):
+            base_version = "0.1.0"
+        
+        # Get current PR commit
+        pr_commit = repo.head.commit
+        changes = main_commit.diff(pr_commit)
+        
+        total_files = len(changes)
+        python_files = len([c for c in changes if (c.a_path or c.b_path or '').endswith('.py')])
+        new_files = len([c for c in changes if c.change_type == 'A'])
+        deleted_files = len([c for c in changes if c.change_type == 'D'])
+        
+        # Simple heuristic for PR preview
+        if deleted_files > 0 or total_files > 10:
+            predicted_bump = "MAJOR 🚨"
+        elif new_files > 0 or python_files > 3:
+            predicted_bump = "MINOR ✨"
+        else:
+            predicted_bump = "PATCH 🐛"
+        
+        return {
+            'base_version': base_version,
+            'predicted_bump': predicted_bump,
+            'total_files': total_files,
+            'python_files': python_files,
+            'new_files': new_files,
+            'deleted_files': deleted_files
+        }
+        
+    except Exception as e:
+        print(f"❌ Error during PR impact analysis: {e}")
+        # Return safe defaults
+        return {
+            'base_version': "0.1.0",
+            'predicted_bump': "PATCH 🐛",
+            'total_files': 0,
+            'python_files': 0,
+            'new_files': 0,
+            'deleted_files': 0
+        }
 
 
 def create_pr_summary(analysis):

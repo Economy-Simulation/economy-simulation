@@ -14,7 +14,7 @@ This directory contains Python scripts used by the GitHub Actions workflows to m
 - Handles bot commit detection to prevent infinite loops
 - Creates GitHub Actions outputs for downstream steps
 
-**Dependencies:** GitPython, packaging, subprocess
+**Dependencies:** GitPython, packaging (managed via `pyproject.toml` in CI environment)
 
 **Usage:** Called automatically by the `version-check.yml` workflow on pushes to main branch.
 
@@ -27,16 +27,14 @@ This directory contains Python scripts used by the GitHub Actions workflows to m
 - Generates PR summary for commenting
 - Compares current PR branch with main branch
 
-**Dependencies:** GitPython, subprocess
+**Dependencies:** GitPython (managed via `pyproject.toml` in CI environment)
 
 **Usage:** Called automatically by the `version-check.yml` workflow on pull request events.
 
-### `requirements.txt`
-**Purpose:** Python dependencies for the automation scripts.
+### `requirements.txt` ❌ REMOVED
+**Previous Purpose:** Python dependencies for the automation scripts.
 
-**Contents:**
-- `gitpython>=3.1.0` - Git repository interaction
-- `packaging>=21.0` - Version parsing and manipulation
+**New Approach:** Dependencies are now managed centrally in the project's `pyproject.toml` under the `[tool.hatch.envs.ci]` environment.
 
 ## Architecture Benefits
 
@@ -50,15 +48,15 @@ This directory contains Python scripts used by the GitHub Actions workflows to m
 - ✅ Modular Python scripts with clear separation of concerns
 - ✅ Easier testing and debugging of individual components
 - ✅ Better code organization and maintainability
-- ✅ Centralized dependency management
+- ✅ **Dependency Management:** Centralized in `pyproject.toml` using hatch environments
 - ✅ Improved readability of both scripts and workflow files
 - ✅ Reusable components for future automation needs
 
 ## Workflow Integration
 
-The scripts are integrated into `.github/workflows/version-check.yml`:
+The scripts are integrated into `.github/workflows/version-check.yml` using hatch environments:
 
-1. **Main Branch Push:** Runs `analyze_version.py` to perform smart version analysis and bumping
-2. **Pull Request:** Runs `analyze_pr.py` to predict version impact and comment on PR
+1. **Main Branch Push:** Runs `hatch env run --env ci python .github/scripts/analyze_version.py` to perform smart version analysis and bumping
+2. **Pull Request:** Runs `hatch env run --env ci python .github/scripts/analyze_pr.py` to predict version impact and comment on PR
 
-Both scripts write output files that are consumed by subsequent workflow steps for commit messages, PR comments, and release notes.
+Dependencies are managed in `pyproject.toml` under the `[tool.hatch.envs.ci]` environment, ensuring consistency with the project's dependency management approach.

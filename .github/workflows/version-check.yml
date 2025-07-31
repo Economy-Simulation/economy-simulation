@@ -35,12 +35,12 @@ jobs:
         
     - name: Install dependencies
       run: |
-        pip install hatch packaging gitpython
-        pip install -r .github/scripts/requirements.txt
+        pip install hatch
+        hatch env create ci
         
     - name: Intelligent Version Analysis
       id: analyze
-      run: python .github/scripts/analyze_version.py
+      run: hatch env run --env ci python .github/scripts/analyze_version.py
         
     - name: Handle skipped analysis
       if: steps.analyze.outputs.should-skip == 'true'
@@ -177,11 +177,11 @@ jobs:
         
     - name: Install dependencies
       run: |
-        pip install hatch packaging gitpython
-        pip install -r .github/scripts/requirements.txt
+        pip install hatch
+        hatch env create ci
       
     - name: Analyze PR Impact
-      run: python .github/scripts/analyze_pr.py
+      run: hatch env run --env ci python .github/scripts/analyze_pr.py
         
     - name: Comment PR with preview
       uses: actions/github-script@v7
