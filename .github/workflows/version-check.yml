@@ -41,7 +41,62 @@ jobs:
         from packaging import version
         
         def run_cmd(cmd):
-            return subprocess.check_output(cmd, shell=True, text=True).strip()
+            try:
+                result = subprocess.check_output(cmd, shell=True, text=True, cwd='.').strip()
+                return result
+            except subprocess.CalledProcessError as e:
+                print(f"Command failed: {cmd}")
+                print(f"Error: {e}")
+                raise
+        
+        def get_version_from_file():
+            """Fallback: read version directly from __about__.py"""
+            try:
+                with open('backend/global_economy_sim/__about__.py', 'r') as f:
+                    content = f.read()
+                    import re
+                    match = re.search(r'__version__\s*=\s*["\']([^"\']+)["\']', content)
+                    if match:
+                        return match.group(1)
+                    return "0.1.0"  # fallback
+            except FileNotFoundError:
+                return "0.1.0"  # fallback
+        
+        def update_version_file(new_version):
+            """Update version directly in __about__.py"""
+            try:
+                with open('backend/global_economy_sim/__about__.py', 'r') as f:
+                    content = f.read()
+                
+                import re
+                updated_content = re.sub(
+                    r'(__version__\s*=\s*["\'])([^"\']+)(["\'])',
+                    f'\\g<1>{new_version}\\g<3>',
+                    content
+                )
+                
+                with open('backend/global_economy_sim/__about__.py', 'w') as f:
+                    f.write(updated_content)
+                
+                print(f"✅ Updated __about__.py with version {new_version}")
+                return True
+            except Exception as e:
+                print(f"❌ Failed to update version file: {e}")
+                return False
+        
+        def increment_version(current_version, bump_type):
+            """Increment version based on bump type"""
+            try:
+                ver = version.parse(current_version)
+                if bump_type == "major":
+                    return f"{ver.major + 1}.0.0"
+                elif bump_type == "minor":
+                    return f"{ver.major}.{ver.minor + 1}.0"
+                else:  # patch
+                    return f"{ver.major}.{ver.minor}.{ver.micro + 1}"
+            except Exception as e:
+                print(f"❌ Error incrementing version: {e}")
+                return current_version
         
         def analyze_changes():
             """Analyze git changes to determine version bump type"""
@@ -51,7 +106,11 @@ jobs:
                 
                 # Get changes in the last commit
                 last_commit = repo.head.commit
-                changes = last_commit.diff(last_commit.parents[0] if last_commit.parents else None)
+                if not last_commit.parents:
+                    print("ℹ️  Initial commit detected")
+                    return "patch", "Initial commit"
+                
+                changes = last_commit.diff(last_commit.parents[0])
                 
                 major_indicators = []
                 minor_indicators = []
@@ -66,6 +125,10 @@ jobs:
                         
                     print(f"  📁 Analyzing: {file_path}")
                     
+                    # Skip version bumps from the bot itself
+                    if file_path == 'backend/global_economy_sim/__about__.py':
+                        continue
+                    
                     # Check file types and change patterns
                     if file_path.endswith(('.py', '.js', '.ts', '.java', '.cpp', '.c')):
                         if change.change_type == 'D':
@@ -78,7 +141,7 @@ jobs:
                         elif change.change_type == 'M':
                             # Analyze the actual diff content
                             try:
-                                diff_text = change.diff.decode('utf-8') if hasattr(change.diff, 'decode') else str(change.diff)
+                                diff_text = str(change.diff)
                                 
                                 # Major change indicators
                                 if any(pattern in diff_text.lower() for pattern in [
@@ -88,20 +151,20 @@ jobs:
                                 ]):
                                     major_indicators.append(f"Breaking change detected in {file_path}")
                                 
-                                # Count lines changed
-                                additions = diff_text.count('\n+')
-                                deletions = diff_text.count('\n-')
+                                # Count lines changed (approximate)
+                                additions = diff_text.count('+')
+                                deletions = diff_text.count('-')
                                 total_changes = additions + deletions
                                 
                                 if total_changes > 100:
                                     if 'api' in file_path.lower() or 'core' in file_path.lower():
-                                        major_indicators.append(f"Major refactoring in core file: {file_path} ({total_changes} lines)")
+                                        major_indicators.append(f"Major refactoring in core file: {file_path} ({total_changes} changes)")
                                     else:
-                                        minor_indicators.append(f"Significant changes: {file_path} ({total_changes} lines)")
+                                        minor_indicators.append(f"Significant changes: {file_path} ({total_changes} changes)")
                                 elif total_changes > 20:
-                                    minor_indicators.append(f"Medium changes: {file_path} ({total_changes} lines)")
+                                    minor_indicators.append(f"Medium changes: {file_path} ({total_changes} changes)")
                                 else:
-                                    patch_indicators.append(f"Small fix: {file_path} ({total_changes} lines)")
+                                    patch_indicators.append(f"Small fix: {file_path} ({total_changes} changes)")
                                     
                                 # Feature indicators
                                 if any(pattern in diff_text.lower() for pattern in [
@@ -165,19 +228,43 @@ jobs:
                 print(f"❌ Error during analysis: {e}")
                 return "patch", "Fallback patch bump due to analysis error"
         
-        # Get current version
-        current_version = run_cmd("hatch version")
-        print(f"📦 Current version: {current_version}")
+        # Ensure we're in the right directory
+        os.chdir('.')
+        print(f"📂 Working directory: {os.getcwd()}")
+        
+        # Get current version (with fallback)
+        try:
+            current_version = run_cmd("hatch version")
+            print(f"📦 Current version (from hatch): {current_version}")
+        except Exception as e:
+            print(f"⚠️  Hatch version failed, reading from file: {e}")
+            current_version = get_version_from_file()
+            print(f"📦 Current version (from file): {current_version}")
+        
+        # Check if this is a version bump commit from the bot
+        repo = git.Repo('.')
+        last_commit = repo.head.commit
+        if "🤖 Auto-bump version" in last_commit.message:
+            print("ℹ️  This is a version bump commit from the bot, skipping analysis")
+            import sys
+            sys.exit(0)
         
         # Analyze and determine bump type
         bump_type, reason = analyze_changes()
         print(f"\n🎯 Decision: {bump_type.upper()} bump")
         print(f"📝 Reason: {reason}")
         
-        # Apply version bump
-        print(f"\n⬆️  Applying {bump_type} version bump...")
-        new_version = run_cmd(f"hatch version {bump_type}")
-        print(f"✅ Version bumped: {current_version} → {new_version}")
+        # Calculate new version
+        new_version = increment_version(current_version, bump_type)
+        print(f"\n⬆️  Calculated new version: {current_version} → {new_version}")
+        
+        # Update version file
+        if update_version_file(new_version):
+            print(f"✅ Version bumped: {current_version} → {new_version}")
+        else:
+            print(f"❌ Failed to update version")
+            import sys
+            sys.exit(1)
         
         # Output for GitHub
         with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
