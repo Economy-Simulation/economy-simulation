@@ -232,14 +232,9 @@ jobs:
         os.chdir('.')
         print(f"📂 Working directory: {os.getcwd()}")
         
-        # Get current version (with fallback)
-        try:
-            current_version = run_cmd("hatch version")
-            print(f"📦 Current version (from hatch): {current_version}")
-        except Exception as e:
-            print(f"⚠️  Hatch version failed, reading from file: {e}")
-            current_version = get_version_from_file()
-            print(f"📦 Current version (from file): {current_version}")
+        # Get current version (file-based only for reliability)
+        current_version = get_version_from_file()
+        print(f"📦 Current version: {current_version}")
         
         # Check if this is a version bump commit from the bot
         repo = git.Repo('.')
@@ -405,13 +400,23 @@ jobs:
         python << 'EOF'
         import git
         import subprocess
+        import re
         
-        def run_cmd(cmd):
-            return subprocess.check_output(cmd, shell=True, text=True).strip()
+        def get_version_from_file():
+            """Read version directly from __about__.py"""
+            try:
+                with open('backend/global_economy_sim/__about__.py', 'r') as f:
+                    content = f.read()
+                    match = re.search(r'__version__\s*=\s*["\']([^"\']+)["\']', content)
+                    if match:
+                        return match.group(1)
+                    return "0.1.0"  # fallback
+            except FileNotFoundError:
+                return "0.1.0"  # fallback
         
         # Get base version
         subprocess.run(["git", "checkout", "origin/main"], check=True)
-        base_version = run_cmd("hatch version")
+        base_version = get_version_from_file()
         
         # Go back to PR
         subprocess.run(["git", "checkout", "-"], check=True)
