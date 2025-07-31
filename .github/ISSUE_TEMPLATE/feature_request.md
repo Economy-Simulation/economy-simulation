@@ -36,7 +36,7 @@ assignees: ''
 ---
 
 **Labels to add:**
-`feature`, `design-needed`, `enhancement` (as applicable)
+`design-needed`, `enhancement` (as applicable)
 
 **Priority:**  
 <!-- Low / Medium / High -->
