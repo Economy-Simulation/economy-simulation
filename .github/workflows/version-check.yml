@@ -8,7 +8,7 @@ on:
 
 jobs:
   smart-version:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '🤖 Auto-bump version')
     runs-on: ubuntu-latest
     name: Smart Version Analysis & Auto-Bump
     permissions:
@@ -19,7 +19,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.SMART_VERSIONING_ADMIN_TOKEN || secrets.GITHUB_TOKEN }}
         
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -241,6 +241,9 @@ jobs:
         last_commit = repo.head.commit
         if "🤖 Auto-bump version" in last_commit.message:
             print("ℹ️  This is a version bump commit from the bot, skipping analysis")
+            # Create a marker file to signal that we should skip all subsequent steps
+            with open('skip_versioning.txt', 'w') as f:
+                f.write('skip')
             import sys
             sys.exit(0)
         
@@ -288,16 +291,39 @@ jobs:
             
         EOF
         
-    - name: Commit version bump
+    - name: Commit and push version bump directly to main
       run: |
+        # Double-check to avoid infinite loops - check if skip file exists
+        if [ -f "skip_versioning.txt" ]; then
+          echo "ℹ️  Skipping versioning due to bot commit detection"
+          exit 0
+        fi
+        
+        # Check if this is a version bump commit from the bot (avoid infinite loops)
+        if [[ "${{ github.event.head_commit.message }}" == *"🤖 Auto-bump version"* ]]; then
+          echo "ℹ️  This is a version bump commit from the bot, skipping to avoid infinite loop"
+          exit 0
+        fi
+        
         git config user.name "smart-versioning[bot]"
         git config user.email "smart-versioning[bot]@users.noreply.github.com"
         git add backend/global_economy_sim/__about__.py
         git commit -m "🤖 Auto-bump version ${{ steps.analyze.outputs.old-version }} → ${{ steps.analyze.outputs.new-version }} (${{ steps.analyze.outputs.bump-type }})"
+        
+        # Push directly to main (bypasses branch protection with ADMIN_TOKEN)
         git push origin main
+        echo "✅ Version bump pushed directly to main: ${{ steps.analyze.outputs.old-version }} → ${{ steps.analyze.outputs.new-version }}"
         
     - name: Create and push tag
       run: |
+        # Check if we should skip (in case previous step was skipped)
+        if [ -f "skip_versioning.txt" ]; then
+          echo "ℹ️  Skipping tag creation due to bot commit detection"
+          exit 0
+        fi
+        
+        git config user.name "smart-versioning[bot]"
+        git config user.email "smart-versioning[bot]@users.noreply.github.com"
         git tag -a "v${{ steps.analyze.outputs.new-version }}" -m "🤖 Smart auto-release v${{ steps.analyze.outputs.new-version }}"
         git push origin "v${{ steps.analyze.outputs.new-version }}"
         echo "✅ Created and pushed tag v${{ steps.analyze.outputs.new-version }}"
@@ -306,7 +332,7 @@ jobs:
       run: |
         cat version_summary.txt >> $GITHUB_STEP_SUMMARY
 
-  auto-release:
+  smart-release:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     name: Create Release
@@ -496,82 +522,3 @@ jobs:
               body: summary
             });
           }
-
-  smart-release:
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    name: Create Release
-    permissions:
-      contents: write
-    
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-        
-    - name: Install Hatch
-      run: pip install hatch
-      
-    - name: Build package
-      run: hatch build
-      
-    - name: Generate release notes
-      id: release-notes
-      run: |
-        VERSION=${GITHUB_REF#refs/tags/v}
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-        
-        # Generate changelog from recent commits
-        cat << EOF > release_notes.md
-        ## 🚀 Global Economy Simulation v$VERSION
-        
-        ### What's Changed
-        
-        $(git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD | head -20)
-        
-        ### Installation
-        
-        \`\`\`bash
-        pip install global-economy-sim==$VERSION
-        \`\`\`
-        
-        ### Development Setup
-        
-        \`\`\`bash
-        git clone https://github.com/filip-herceg/economy-simulation.git
-        cd economy-simulation
-        hatch env create
-        hatch shell
-        \`\`\`
-        
-        **Full Changelog**: https://github.com/filip-herceg/economy-simulation/compare/$(git describe --tags --abbrev=0 HEAD^)...v$VERSION
-        EOF
-        
-    - name: Create GitHub Release
-      id: create-release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref_name }}
-        release_name: "Global Economy Simulation v${{ steps.release-notes.outputs.version }}"
-        body_path: release_notes.md
-        draft: false
-        prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
-        
-    - name: Upload build artifacts
-      if: success()
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ./dist/
-        asset_name: economy-simulation-distributions
-        asset_content_type: application/zip
