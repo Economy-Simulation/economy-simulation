@@ -260,7 +260,7 @@ def main():
             "should-skip": "true",
             "skip-reason": "bot-commit"
         })
-        sys.exit(0)
+        return
     
     # Check if versioning should be skipped
     if os.getenv('SKIP_VERSIONING') == 'true':
