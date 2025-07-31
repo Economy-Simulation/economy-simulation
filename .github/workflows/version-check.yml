@@ -43,6 +43,7 @@ jobs:
         python << 'EOF'
         import os
         import re
+        import sys
         import git
         import subprocess
         from packaging import version
@@ -250,13 +251,11 @@ jobs:
             print("ℹ️  This is a version bump commit from the bot, skipping analysis")
             # Set an environment variable to signal that we should skip all subsequent steps
             os.environ['SKIP_VERSIONING'] = 'true'
-            import sys
             sys.exit(0)
         
         # Check if versioning should be skipped
         if os.getenv('SKIP_VERSIONING') == 'true':
             print("ℹ️  Skipping versioning as per environment variable")
-            import sys
             sys.exit(0)
         
         # Analyze and determine bump type
@@ -273,7 +272,6 @@ jobs:
             print(f"✅ Version bumped: {current_version} → {new_version}")
         else:
             print(f"❌ Failed to update version")
-            import sys
             sys.exit(1)
         
         # Output for GitHub
