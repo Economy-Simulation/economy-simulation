@@ -253,7 +253,7 @@ jobs:
             with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
                 f.write("should-skip=true\n")
                 f.write("skip-reason=bot-commit\n")
-            exit()
+            sys.exit()
         
         # Check if versioning should be skipped
         if os.getenv('SKIP_VERSIONING') == 'true':
