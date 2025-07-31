@@ -22,7 +22,7 @@
 economy-simulation/
 ├── backend/           # Core simulation engine and APIs
 ├── frontend/          # Web-based interface and visualization
-├── LICENSE           # Open source license
+├── LICENSE           # MIT License
 └── README.md         # This file
 ```
 
@@ -42,4 +42,4 @@ This is an ambitious open-source project that welcomes contributors from all bac
 
 ## 📄 License
 
-This project is open source and available under the [LICENSE](LICENSE).
+This project is open source and available under the [MIT License](LICENSE).
