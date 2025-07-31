@@ -14,7 +14,7 @@ This setup enables **100% automated versioning** that pushes directly to main, b
    - **Repository access**: Selected repositories → Choose `economy-simulation`
    - **Expiration**: 1 year (or No expiration if you prefer)
    - **Repository permissions**:
-     - ✅ **Actions**: Read (to trigger workflows)
+     - ✅ **Actions**: Read (to view workflow run information)
      - ✅ **Administration**: Write (to bypass branch protection)
      - ✅ **Contents**: Write (to push commits and tags)
      - ✅ **Metadata**: Read (basic repo access)
