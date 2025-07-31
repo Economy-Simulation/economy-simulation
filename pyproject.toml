@@ -1,6 +1,6 @@
 [project]
-name = "economy-simulation"
-version = "0.1.0"
+name = "global-economy-sim"
+version = "0.0.0"
 description = "A full-scale global economy simulation engine."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -10,15 +10,12 @@ dependencies = [
 
 ]
 
-[tool.hatch.metadata]
-sources = ["backend/global-economy-sim"]
-
 [tool.hatch.version]
-path = "backend/global-economy-sim/__about__.py"
+path = "backend/global_economy_sim/__about__.py"
 
 [tool.hatch.envs.default]
 dependencies = [
-    "pytest"
+    "pytest>8.4.1"
 ]
 
 [tool.hatch.envs.default.scripts]
@@ -27,6 +24,9 @@ test = "pytest backend/tests"
 [tool.pytest.ini_options]
 testpaths = ["backend/tests"]
 python_files = ["test_*.py"]
+
+[tool.hatch.build.targets.wheel]
+sources = ["backend"]
 
 [build-system]
 requires = ["hatchling"]
