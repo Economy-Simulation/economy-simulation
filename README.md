@@ -9,7 +9,7 @@
 > **To create the most comprehensive, high-performance, and modular simulation of the real-world global economy — empowering individuals, companies, and institutions to understand, explore, and forecast the complex interdependencies of our planetary markets.**
 
 **Key Pillars:**
-- **🌐 Global Scale:** Simulate ~195 nations, markets, currencies, and production chains with adjustable granularity
+- **🌐 Global Scale:** Simulate 190+ nations, markets, currencies, and production chains with adjustable granularity
 - **👥 Universal Access:** Built for corporate strategists, investors, researchers, governments, and developers
 - **🔧 Open & Modular:** Fully open-source with extensible APIs for infinite customization
 - **🚀 Future-Ready:** Supporting historical reconstructions and real-time integrations
