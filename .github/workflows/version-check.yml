@@ -286,7 +286,6 @@ jobs:
         
         # Output for GitHub
         with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-            f.write(f"should-skip=false\n")
             f.write(f"old-version={current_version}\n")
             f.write(f"new-version={new_version}\n")
             f.write(f"bump-type={bump_type}\n")
