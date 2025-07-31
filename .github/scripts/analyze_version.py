@@ -286,12 +286,12 @@ def main():
         print(f"✅ Version bumped: {current_version} → {new_version}")
     else:
         print(f"❌ Failed to update version")
-        # Output error signal and exit with error code
+        # Output error signal and exit gracefully
         write_github_outputs({
             "should-skip": "true",
             "skip-reason": "update-failed"
         })
-        sys.exit(1)
+        sys.exit(0)
     
     # Output for GitHub Actions
     write_github_outputs({
