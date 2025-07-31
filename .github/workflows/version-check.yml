@@ -256,7 +256,8 @@ jobs:
         # Check if versioning should be skipped
         if os.getenv('SKIP_VERSIONING') == 'true':
             print("ℹ️  Skipping versioning as per environment variable")
-            return
+            import sys
+            sys.exit(0)
         
         # Analyze and determine bump type
         bump_type, reason = analyze_changes()

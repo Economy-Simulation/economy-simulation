@@ -15,7 +15,7 @@ path = "backend/global_economy_sim/__about__.py"
 
 [tool.hatch.envs.default]
 dependencies = [
-    "pytest>8.4.1"
+    "pytest>=8.4.1"
 ]
 
 [tool.hatch.envs.default.scripts]
