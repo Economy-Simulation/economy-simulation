@@ -20,17 +20,52 @@
 
 ```
 economy-simulation/
-├── backend/           # Core simulation engine and APIs
-├── frontend/          # Web-based interface and visualization
-├── LICENSE           # MIT License
-└── README.md         # This file
+├── backend/
+│   └── global-economy-sim/    # Core Python simulation engine
+├── frontend/                  # Web-based interface and visualization
+├── pyproject.toml            # Hatch project configuration
+├── LICENSE                   # MIT License
+└── README.md                 # This file
 ```
 
 ---
 
 ## 🚀 Getting Started
 
-*Coming soon - Development is in early stages*
+### Prerequisites
+- Python 3.10+
+- [Hatch](https://hatch.pypa.io/) for Python environment management
+
+### Development Setup
+
+1. **Install Hatch** (if not already installed):
+   ```bash
+   pip install hatch
+   ```
+
+2. **Clone the repository**:
+   ```bash
+   git clone https://github.com/filip-herceg/economy-simulation.git
+   cd economy-simulation
+   ```
+
+3. **Set up development environment**:
+   ```bash
+   hatch env create
+   ```
+
+4. **Activate the environment**:
+   ```bash
+   hatch shell
+   ```
+
+### Available Commands
+
+- **Run tests**: `hatch run test` *(coming soon)*
+- **Build package**: `hatch build`
+- **Install in development mode**: `hatch run pip install -e .`
+
+*Note: Development is in early stages - more commands and features coming soon*
 
 ---
 

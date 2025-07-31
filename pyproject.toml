@@ -1,0 +1,33 @@
+[project]
+name = "global-economy-sim"
+dynamic = ["version"]
+description = "A full-scale global economy simulation engine."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Filip Herceg", email = "pvt.filip.herceg@gmail.com" }]
+dependencies = [
+
+]
+
+[tool.hatch.version]
+path = "backend/global_economy_sim/__about__.py"
+
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest>8.4.1"
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest backend/tests"
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+python_files = ["test_*.py"]
+
+[tool.hatch.build.targets.wheel]
+sources = ["backend"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
