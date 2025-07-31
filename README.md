@@ -69,6 +69,25 @@ economy-simulation/
 
 ---
 
+## 🤖 Smart Auto-Versioning
+
+This project uses an AI-powered smart versioning system that automatically:
+- **Analyzes code changes** using semantic analysis
+- **Determines version bumps** (MAJOR/MINOR/PATCH) based on impact
+- **Creates releases** with automated changelogs
+- **Maintains semantic versioning** without manual intervention
+
+### For Contributors
+- Just push your changes to main
+- The system automatically analyzes your code changes
+- Version bumps and releases happen automatically
+- No need to manually update version numbers
+
+### Setup (Maintainers Only)
+See `SECURE-VERSIONING-SETUP.md` for GitHub App setup instructions.
+
+---
+
 ## 🤝 Contributing
 
 This is an ambitious open-source project that welcomes contributors from all backgrounds - economists, developers, data scientists, and domain experts. Help us build the future of economic simulation.
