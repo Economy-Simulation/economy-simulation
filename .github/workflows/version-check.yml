@@ -262,7 +262,7 @@ jobs:
             with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
                 f.write("should-skip=true\n")
                 f.write("skip-reason=env-variable\n")
-            sys.exit()
+            sys.exit(0)
         
         # Analyze and determine bump type
         bump_type, reason = analyze_changes()
