@@ -248,9 +248,6 @@ jobs:
         last_commit = repo.head.commit
         if "🤖 Auto-bump version" in last_commit.message:
             print("ℹ️  This is a version bump commit from the bot, skipping analysis")
-            # Create a marker file to signal that we should skip all subsequent steps
-            with open('skip_versioning.txt', 'w') as f:
-                f.write('skip')
             import sys
             sys.exit(0)
         
@@ -300,35 +297,17 @@ jobs:
         
     - name: Commit and push version bump directly to main
       run: |
-        # Double-check to avoid infinite loops - check if skip file exists
-        if [ -f "skip_versioning.txt" ]; then
-          echo "ℹ️  Skipping versioning due to bot commit detection"
-          exit 0
-        fi
-        
-        # Check if this is a version bump commit from the bot (avoid infinite loops)
-        if [[ "${{ github.event.head_commit.message }}" == *"🤖 Auto-bump version"* ]]; then
-          echo "ℹ️  This is a version bump commit from the bot, skipping to avoid infinite loop"
-          exit 0
-        fi
-        
         git config user.name "smart-versioning[bot]"
         git config user.email "smart-versioning[bot]@users.noreply.github.com"
         git add backend/global_economy_sim/__about__.py
         git commit -m "🤖 Auto-bump version ${{ steps.analyze.outputs.old-version }} → ${{ steps.analyze.outputs.new-version }} (${{ steps.analyze.outputs.bump-type }})"
         
-        # Push directly to main (bypasses branch protection with ADMIN_TOKEN)
+        # Push directly to main (bypasses branch protection with GitHub App token)
         git push origin main
         echo "✅ Version bump pushed directly to main: ${{ steps.analyze.outputs.old-version }} → ${{ steps.analyze.outputs.new-version }}"
         
     - name: Create and push tag
       run: |
-        # Check if we should skip (in case previous step was skipped)
-        if [ -f "skip_versioning.txt" ]; then
-          echo "ℹ️  Skipping tag creation due to bot commit detection"
-          exit 0
-        fi
-        
         git config user.name "smart-versioning[bot]"
         git config user.email "smart-versioning[bot]@users.noreply.github.com"
         git tag -a "v${{ steps.analyze.outputs.new-version }}" -m "🤖 Smart auto-release v${{ steps.analyze.outputs.new-version }}"
