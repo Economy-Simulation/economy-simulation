@@ -249,14 +249,20 @@ jobs:
         last_commit = repo.head.commit
         if "🤖 Auto-bump version" in last_commit.message:
             print("ℹ️  This is a version bump commit from the bot, skipping analysis")
-            # Set an environment variable to signal that we should skip all subsequent steps
-            os.environ['SKIP_VERSIONING'] = 'true'
-            sys.exit(0)
+            # Output skip signal
+            with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                f.write("should-skip=true\n")
+                f.write("skip-reason=bot-commit\n")
+            exit()
         
         # Check if versioning should be skipped
         if os.getenv('SKIP_VERSIONING') == 'true':
             print("ℹ️  Skipping versioning as per environment variable")
-            sys.exit(0)
+            # Output skip signal
+            with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                f.write("should-skip=true\n")
+                f.write("skip-reason=env-variable\n")
+            exit()
         
         # Analyze and determine bump type
         bump_type, reason = analyze_changes()
@@ -272,10 +278,15 @@ jobs:
             print(f"✅ Version bumped: {current_version} → {new_version}")
         else:
             print(f"❌ Failed to update version")
-            sys.exit(1)
+            # Output error signal and exit with error code
+            with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                f.write("should-skip=true\n")
+                f.write("skip-reason=update-failed\n")
+            exit(1)
         
         # Output for GitHub
         with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            f.write(f"should-skip=false\n")
             f.write(f"old-version={current_version}\n")
             f.write(f"new-version={new_version}\n")
             f.write(f"bump-type={bump_type}\n")
@@ -301,7 +312,29 @@ jobs:
             
         EOF
         
+    - name: Handle skipped analysis
+      if: steps.analyze.outputs.should-skip == 'true'
+      run: |
+        echo "ℹ️  Versioning analysis was skipped"
+        echo "📋 Reason: ${{ steps.analyze.outputs.skip-reason }}"
+        case "${{ steps.analyze.outputs.skip-reason }}" in
+          "bot-commit")
+            echo "🤖 This commit was made by the versioning bot, skipping to prevent infinite loops"
+            ;;
+          "env-variable")
+            echo "🛑 SKIP_VERSIONING environment variable is set"
+            ;;
+          "update-failed")
+            echo "❌ Version file update failed"
+            exit 1
+            ;;
+          *)
+            echo "ℹ️  Analysis skipped for unknown reason"
+            ;;
+        esac
+        
     - name: Commit and push version bump directly to main
+      if: steps.analyze.outputs.should-skip != 'true'
       run: |
         git config user.name "smart-versioning[bot]"
         git config user.email "smart-versioning[bot]@users.noreply.github.com"
@@ -313,6 +346,7 @@ jobs:
         echo "✅ Version bump pushed directly to main: ${{ steps.analyze.outputs.old-version }} → ${{ steps.analyze.outputs.new-version }}"
         
     - name: Create and push tag
+      if: steps.analyze.outputs.should-skip != 'true'
       run: |
         git config user.name "smart-versioning[bot]"
         git config user.email "smart-versioning[bot]@users.noreply.github.com"
@@ -321,6 +355,7 @@ jobs:
         echo "✅ Created and pushed tag v${{ steps.analyze.outputs.new-version }}"
         
     - name: Create summary
+      if: steps.analyze.outputs.should-skip != 'true'
       run: |
         cat version_summary.txt >> $GITHUB_STEP_SUMMARY
 
