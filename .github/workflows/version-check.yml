@@ -46,8 +46,9 @@ jobs:
       if: steps.analyze.outputs.should-skip == 'true'
       run: |
         echo "ℹ️  Versioning analysis was skipped"
-        echo "📋 Reason: ${{ steps.analyze.outputs.skip-reason }}"
-        case "${{ steps.analyze.outputs.skip-reason }}" in
+        SKIP_REASON="${{ steps.analyze.outputs.skip-reason }}"
+        echo "📋 Reason: $SKIP_REASON"
+        case "$SKIP_REASON" in
           "bot-commit")
             echo "🤖 This commit was made by the versioning bot, skipping to prevent infinite loops"
             ;;
@@ -58,8 +59,11 @@ jobs:
             echo "❌ Version file update failed"
             exit 1
             ;;
+          "")
+            echo "⚠️  Skip reason not provided"
+            ;;
           *)
-            echo "ℹ️  Analysis skipped for unknown reason"
+            echo "ℹ️  Analysis skipped for unknown reason: $SKIP_REASON"
             ;;
         esac
         
