@@ -291,7 +291,7 @@ def main():
             "should-skip": "true",
             "skip-reason": "update-failed"
         })
-        sys.exit(0)
+        sys.exit(1)
     
     # Output for GitHub Actions
     write_github_outputs({
