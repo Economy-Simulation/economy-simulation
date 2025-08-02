@@ -66,15 +66,140 @@ def update_version_file(new_version):
 
 
 def increment_version(current_version, bump_type):
-    """Increment version based on bump type"""
+    """Increment version based on bump type, preserving pre-release status"""
     try:
         ver = version.parse(current_version)
+        
+        # Check if current version is a pre-release (alpha, beta, rc)
+        is_prerelease = ver.is_prerelease
+        prerelease_type = None
+        prerelease_number = 0
+        
+        if is_prerelease:
+            # Extract pre-release info (e.g., 'a0', 'b1', 'rc2')
+            if ver.pre:
+                prerelease_type = ver.pre[0]  # 'a', 'b', 'rc'
+                prerelease_number = ver.pre[1]  # 0, 1, 2, etc.
+            
+            print(f"🔍 Detected pre-release version: {current_version} (type: {prerelease_type}, number: {prerelease_number})")
+            
+            # Log unknown pre-release types for awareness
+            if prerelease_type not in ['a', 'b', 'rc']:
+                print(f"ℹ️  Note: Unknown pre-release type '{prerelease_type}' detected")
+                print(f"Supported types: 'a' (alpha), 'b' (beta), 'rc' (release candidate)")
+                print(f"Will preserve original identifier during semantic version bumps")
+        
+        # Handle graduation from pre-release to stable
+        if bump_type == "graduate":
+            if is_prerelease:
+                # Graduate to stable version without incrementing
+                print(f"🎓 Graduating from {prerelease_type}{prerelease_number} to stable")
+                return f"{ver.major}.{ver.minor}.{ver.micro}"
+            else:
+                print("⚠️  Cannot graduate non-pre-release version (already stable)")
+                return current_version
+        
+        # Handle alpha increment (only bump the alpha number)
+        if bump_type == "alpha":
+            if is_prerelease and prerelease_type == 'a':
+                # Increment only the alpha number
+                return f"{ver.major}.{ver.minor}.{ver.micro}a{prerelease_number + 1}"
+            elif is_prerelease and prerelease_type:
+                print(f"⚠️  Alpha increment requested but current version is {prerelease_type}{prerelease_number}")
+                print("Alpha increment only works on alpha versions")
+                return current_version
+            else:
+                print("⚠️  Alpha increment only works on alpha versions")
+                return current_version
+        
+        # Handle beta increment (only bump the beta number)
+        if bump_type == "beta":
+            if is_prerelease and prerelease_type == 'b':
+                # Increment only the beta number
+                return f"{ver.major}.{ver.minor}.{ver.micro}b{prerelease_number + 1}"
+            elif is_prerelease and prerelease_type:
+                print(f"⚠️  Beta increment requested but current version is {prerelease_type}{prerelease_number}")
+                print("Beta increment only works on beta versions")
+                return current_version
+            else:
+                print("⚠️  Beta increment only works on beta versions")
+                return current_version
+        
+        # Handle release candidate increment (only bump the rc number)
+        if bump_type == "rc":
+            if is_prerelease and prerelease_type == 'rc':
+                # Increment only the rc number
+                return f"{ver.major}.{ver.minor}.{ver.micro}rc{prerelease_number + 1}"
+            elif is_prerelease and prerelease_type:
+                print(f"⚠️  RC increment requested but current version is {prerelease_type}{prerelease_number}")
+                print("RC increment only works on release candidate versions")
+                return current_version
+            else:
+                print("⚠️  RC increment only works on release candidate versions")
+                return current_version
+        
+        # Handle promotion from alpha to beta
+        if bump_type == "promote-beta":
+            if is_prerelease and prerelease_type == 'a':
+                # Promote to beta stage
+                return f"{ver.major}.{ver.minor}.{ver.micro}b0"
+            elif is_prerelease and prerelease_type == 'b':
+                print("⚠️  Already in beta stage, cannot promote to beta")
+                return current_version
+            elif is_prerelease and prerelease_type == 'rc':
+                print("⚠️  Cannot promote backwards from release candidate to beta")
+                return current_version
+            elif is_prerelease and prerelease_type:
+                print(f"⚠️  Cannot promote from unknown pre-release type '{prerelease_type}' to beta")
+                print("Beta promotion only works from alpha versions")
+                return current_version
+            else:
+                print("⚠️  Beta promotion only works from alpha versions")
+                return current_version
+        
+        # Handle promotion from beta to release candidate
+        if bump_type == "promote-rc":
+            if is_prerelease and prerelease_type == 'b':
+                # Promote to release candidate stage
+                return f"{ver.major}.{ver.minor}.{ver.micro}rc0"
+            elif is_prerelease and prerelease_type == 'a':
+                print("⚠️  Cannot skip beta stage - promote to beta first")
+                return current_version
+            elif is_prerelease and prerelease_type == 'rc':
+                print("⚠️  Already in release candidate stage, cannot promote to RC")
+                return current_version
+            elif is_prerelease and prerelease_type:
+                print(f"⚠️  Cannot promote from unknown pre-release type '{prerelease_type}' to release candidate")
+                print("RC promotion only works from beta versions")
+                return current_version
+            else:
+                print("⚠️  RC promotion only works from beta versions")
+                return current_version
+        
+        # Increment version while preserving pre-release status
         if bump_type == "major":
-            return f"{ver.major + 1}.0.0"
+            new_base = f"{ver.major + 1}.0.0"
         elif bump_type == "minor":
-            return f"{ver.major}.{ver.minor + 1}.0"
+            new_base = f"{ver.major}.{ver.minor + 1}.0"
         else:  # patch
-            return f"{ver.major}.{ver.minor}.{ver.micro + 1}"
+            new_base = f"{ver.major}.{ver.minor}.{ver.micro + 1}"
+        
+        # If original was pre-release, keep it as pre-release
+        if is_prerelease and prerelease_type:
+            if prerelease_type == 'a':
+                return f"{new_base}a{prerelease_number}"
+            elif prerelease_type == 'b':
+                return f"{new_base}b{prerelease_number}"
+            elif prerelease_type == 'rc':
+                return f"{new_base}rc{prerelease_number}"
+            else:
+                # Handle unknown pre-release types safely
+                print(f"⚠️  Unknown pre-release type '{prerelease_type}' detected")
+                print(f"Preserving original pre-release identifier: {prerelease_type}{prerelease_number}")
+                return f"{new_base}{prerelease_type}{prerelease_number}"
+        else:
+            return new_base
+            
     except Exception as e:
         print(f"❌ Error incrementing version: {e}")
         return current_version
@@ -91,6 +216,56 @@ def analyze_changes():
         if not last_commit.parents:
             print("ℹ️  Initial commit detected")
             return "patch", "Initial commit"
+        
+        # Check commit message for graduation indicators
+        commit_msg = last_commit.message.lower()
+        if any(phrase in commit_msg for phrase in ['[graduate from alpha]', '[alpha graduation]', '[graduate to stable]', '[alpha -> stable]']):
+            print("🎓 Alpha graduation detected in commit message")
+            return "graduate", "Alpha graduation indicated in commit message"
+        
+        # Check for potential backward progression attempts and warn
+        current_version = get_version_from_file()
+        current_ver = version.parse(current_version)
+        if current_ver.is_prerelease and current_ver.pre:
+            current_stage = current_ver.pre[0]
+            
+            # Detect attempts to go backwards
+            if current_stage == 'b' and any(phrase in commit_msg for phrase in ['[alpha increment]', '[bump alpha]', '[alpha bump]', '[increment alpha]']):
+                print("🚨 WARNING: Attempt to use alpha commands on beta version detected!")
+                print(f"Current version is {current_version} (beta stage)")
+                print("Ignoring alpha command and proceeding with automatic analysis...")
+            elif current_stage == 'rc' and any(phrase in commit_msg for phrase in ['[alpha increment]', '[bump alpha]', '[alpha bump]', '[increment alpha]', '[beta increment]', '[bump beta]', '[beta bump]', '[increment beta]']):
+                print("🚨 WARNING: Attempt to use alpha/beta commands on release candidate version detected!")
+                print(f"Current version is {current_version} (release candidate stage)")
+                print("Ignoring backward stage command and proceeding with automatic analysis...")
+            elif current_stage == 'rc' and any(phrase in commit_msg for phrase in ['[alpha to beta]', '[promote to beta]', '[beta stage]']):
+                print("🚨 WARNING: Attempt to promote to beta from release candidate detected!")
+                print(f"Current version is {current_version} (already past beta stage)")
+                print("Ignoring backward promotion and proceeding with automatic analysis...")
+        
+        # Check for alpha increment indicators (minor changes that should only bump alpha number)
+        if any(phrase in commit_msg for phrase in ['[alpha increment]', '[bump alpha]', '[alpha bump]', '[increment alpha]']):
+            print("🔢 Alpha increment detected in commit message")
+            return "alpha", "Alpha increment indicated in commit message"
+        
+        # Check for beta increment indicators
+        if any(phrase in commit_msg for phrase in ['[beta increment]', '[bump beta]', '[beta bump]', '[increment beta]']):
+            print("🔢 Beta increment detected in commit message")
+            return "beta", "Beta increment indicated in commit message"
+        
+        # Check for release candidate increment indicators
+        if any(phrase in commit_msg for phrase in ['[rc increment]', '[bump rc]', '[rc bump]', '[increment rc]', '[release candidate increment]']):
+            print("🔢 Release candidate increment detected in commit message")
+            return "rc", "Release candidate increment indicated in commit message"
+        
+        # Check for stage progression indicators
+        if any(phrase in commit_msg for phrase in ['[alpha to beta]', '[promote to beta]', '[beta stage]']):
+            print("📈 Alpha to Beta promotion detected in commit message")
+            return "promote-beta", "Promotion to beta stage indicated in commit message"
+        
+        if any(phrase in commit_msg for phrase in ['[beta to rc]', '[promote to rc]', '[release candidate stage]', '[rc stage]']):
+            print("📈 Beta to RC promotion detected in commit message")
+            return "promote-rc", "Promotion to release candidate stage indicated in commit message"
         
         changes = last_commit.diff(last_commit.parents[0])
         
@@ -222,8 +397,16 @@ def write_github_outputs(data):
 
 def create_version_summary(current_version, new_version, bump_type, reason):
     """Create detailed summary for GitHub Actions"""
-    bump_emoji = {"major": "🚨", "minor": "✨", "patch": "🐛"}
-    bump_desc = {"major": "Breaking changes", "minor": "New features", "patch": "Bug fixes"}
+    bump_emoji = {
+        "major": "🚨", "minor": "✨", "patch": "🐛", 
+        "graduate": "🎓", "alpha": "🔢", "beta": "🔢", "rc": "🔢",
+        "promote-beta": "📈", "promote-rc": "📈"
+    }
+    bump_desc = {
+        "major": "Breaking changes", "minor": "New features", "patch": "Bug fixes", 
+        "graduate": "Alpha graduation", "alpha": "Alpha increment", "beta": "Beta increment", 
+        "rc": "Release candidate increment", "promote-beta": "Promote to beta", "promote-rc": "Promote to release candidate"
+    }
     
     with open("version_summary.txt", "w") as f:
         f.write(f"## 🤖 Smart Auto-Version Update\n\n")
