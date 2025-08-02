@@ -128,14 +128,7 @@ body:
     attributes:
       label: Acceptance Criteria
       description: Define what needs to be completed for this task to be considered done
-      placeholder: |
-        - [ ] Task implementation is complete and working
-        - [ ] Code follows project standards and guidelines
-        - [ ] All tests pass (existing and new)
-        - [ ] Documentation is updated if needed
-        - [ ] No regression in existing functionality
-        - [ ] Code is reviewed and approved
-        - [ ] Changes are properly tested in relevant environments
+
       value: |
         - [ ] Task implementation is complete and working
         - [ ] Code follows project standards and guidelines

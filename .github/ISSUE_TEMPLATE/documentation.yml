@@ -106,13 +106,7 @@ body:
     attributes:
       label: Acceptance Criteria
       description: Define what needs to be done to consider this documentation issue resolved
-      placeholder: |
-        - [ ] Documentation is accurate and up-to-date
-        - [ ] Content is clear and easy to understand
-        - [ ] Examples are provided where appropriate
-        - [ ] Links and references work correctly
-        - [ ] Documentation follows project style guide
-        - [ ] Content is properly organized and structured
+
       value: |
         - [ ] Documentation is accurate and up-to-date
         - [ ] Content is clear and easy to understand

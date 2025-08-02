@@ -82,15 +82,3 @@ body:
     attributes:
       label: Acceptance Criteria
       description: Define what needs to be done to consider this bug fixed
-      placeholder: |
-        - [ ] The bug is no longer reproducible following the steps above
-        - [ ] Related functionality works as expected
-        - [ ] No regression in other features
-        - [ ] Unit/integration tests are added to prevent regression
-      value: |
-        - [ ] The bug is no longer reproducible following the steps above
-        - [ ] Related functionality works as expected
-        - [ ] No regression in other features
-        - [ ] Unit/integration tests are added to prevent regression
-    validations:
-      required: true

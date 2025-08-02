@@ -99,13 +99,7 @@ body:
     attributes:
       label: Acceptance Criteria
       description: Define what needs to be implemented for this feature to be considered complete
-      placeholder: |
-        - [ ] Feature functionality works as described
-        - [ ] User interface is intuitive and accessible
-        - [ ] Feature is properly documented
-        - [ ] Unit and integration tests are implemented
-        - [ ] Performance impact is minimal
-        - [ ] Feature can be enabled/disabled if applicable
+
       value: |
         - [ ] Feature functionality works as described
         - [ ] User interface is intuitive and accessible

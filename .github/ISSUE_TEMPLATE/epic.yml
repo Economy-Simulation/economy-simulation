@@ -171,17 +171,7 @@ body:
     attributes:
       label: Acceptance Criteria
       description: Define what needs to be completed for this epic to be considered done
-      placeholder: |
-        - [ ] All user stories are implemented and tested
-        - [ ] User interface is complete and user-friendly
-        - [ ] Performance meets defined benchmarks
-        - [ ] Security requirements are met
-        - [ ] Documentation is complete and up-to-date
-        - [ ] All tests pass (unit, integration, e2e)
-        - [ ] Feature is successfully deployed to production
-        - [ ] Success metrics show positive results
-        - [ ] User feedback is positive
-        - [ ] No critical bugs or performance issues
+
       value: |
         - [ ] All user stories are implemented and tested
         - [ ] User interface is complete and user-friendly

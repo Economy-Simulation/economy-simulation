@@ -96,12 +96,7 @@ body:
     attributes:
       label: Acceptance Criteria
       description: How will you know when your question has been adequately answered?
-      placeholder: |
-        - [ ] Clear explanation provided for the question
-        - [ ] Working solution or approach is demonstrated
-        - [ ] Related documentation is referenced or created
-        - [ ] Any misunderstandings are clarified
-        - [ ] Follow-up questions are answered
+
       value: |
         - [ ] Clear explanation provided for the question
         - [ ] Working solution or approach is demonstrated
