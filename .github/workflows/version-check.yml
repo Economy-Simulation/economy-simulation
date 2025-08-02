@@ -142,13 +142,13 @@ jobs:
         ### Development Setup
         
         \`\`\`bash
-        git clone https://github.com/filip-herceg/economy-simulation.git
+        git clone https://github.com/Economy-Simulation/economy-simulation.git
         cd economy-simulation
         hatch env create
         hatch shell
         \`\`\`
         
-        **Full Changelog**: https://github.com/filip-herceg/economy-simulation/compare/$(git describe --tags --abbrev=0 HEAD^)...v$VERSION
+        **Full Changelog**: https://github.com/Economy-Simulation/economy-simulation/compare/$(git describe --tags --abbrev=0 HEAD^)...v$VERSION
         EOF
         
     - name: Create GitHub Release
@@ -167,6 +167,10 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     name: Preview Version Impact
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: read
     
     steps:
     - name: Checkout PR

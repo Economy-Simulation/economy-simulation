@@ -1,10 +1,10 @@
-# 🌍 Economy Simulation
+# Economy Simulation
 
 *The most comprehensive, high-performance, and modular simulation of the real-world global economy*
 
 ---
 
-## 🌍 Vision
+## Vision
 
 > **To create the most comprehensive, high-performance, and modular simulation of the real-world global economy — empowering individuals, companies, and institutions to understand, explore, and forecast the complex interdependencies of our planetary markets.**
 
@@ -16,7 +16,7 @@
 
 ---
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 economy-simulation/
@@ -30,7 +30,7 @@ economy-simulation/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Python 3.10+
@@ -69,7 +69,7 @@ economy-simulation/
 
 ---
 
-## 🤖 Smart Auto-Versioning
+## Smart Auto-Versioning
 
 This project uses an AI-powered smart versioning system that automatically:
 - **Analyzes code changes** using semantic analysis
@@ -88,12 +88,12 @@ See `SECURE-VERSIONING-SETUP.md` for GitHub App setup instructions.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 This is an ambitious open-source project that welcomes contributors from all backgrounds - economists, developers, data scientists, and domain experts. Help us build the future of economic simulation.
 
 ---
 
-## 📄 License
+## License
 
 This project is open source and available under the [MIT License](LICENSE).

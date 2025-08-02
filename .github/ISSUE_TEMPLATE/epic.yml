@@ -1,0 +1,187 @@
+name: 🚀 Epic/User Story
+description: Large feature or collection of related work items
+title: "[EPIC] "
+labels: ["epic", "needs-planning"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for large features, major initiatives, or collections of related work that span multiple issues.
+
+  - type: textarea
+    id: epic-overview
+    attributes:
+      label: Epic Overview
+      description: High-level description of this epic and its goals
+      placeholder: Provide a comprehensive overview of what this epic aims to achieve...
+    validations:
+      required: true
+
+  - type: textarea
+    id: business-value
+    attributes:
+      label: Business Value
+      description: What business value or user benefit does this epic provide?
+      placeholder: |
+        Describe the business value, user benefits, or strategic importance:
+        - How does this help users?
+        - What business goals does it support?
+        - What is the expected impact?
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-personas
+    attributes:
+      label: Target Users/Personas
+      description: Who are the primary users or stakeholders for this epic?
+      placeholder: |
+        Describe the target users:
+        - Simulation researchers
+        - Economy analysts
+        - Students and educators
+        - Software developers
+        - Other stakeholders...
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What is included and excluded from this epic?
+      placeholder: |
+        In Scope:
+        - Feature A
+        - Integration with X
+        - UI updates for Y
+        
+        Out of Scope:
+        - Advanced feature Z (future epic)
+        - Legacy system support
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-stories
+    attributes:
+      label: User Stories
+      description: Break down the epic into key user stories
+      placeholder: |
+        1. As a [user type], I want [functionality] so that [benefit]
+        2. As a [user type], I want [functionality] so that [benefit]
+        3. As a [user type], I want [functionality] so that [benefit]
+        
+        Example:
+        1. As a researcher, I want to configure simulation parameters so that I can model different economic scenarios
+        2. As an analyst, I want to visualize simulation results so that I can identify trends and patterns
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical-approach
+    attributes:
+      label: Technical Approach
+      description: High-level technical approach and architecture considerations
+      placeholder: |
+        Describe the technical approach:
+        - Architecture changes
+        - Technology choices
+        - Integration points
+        - Performance considerations
+        - Security considerations
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: What dependencies exist for this epic?
+      placeholder: |
+        - External dependencies (third-party services, libraries)
+        - Internal dependencies (other epics, infrastructure)
+        - Team dependencies (design, product, other teams)
+        - Timeline dependencies
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and Mitigation
+      description: What are the main risks and how will they be mitigated?
+      placeholder: |
+        Risk 1: [Description]
+        Mitigation: [How to address]
+        
+        Risk 2: [Description]
+        Mitigation: [How to address]
+
+  - type: textarea
+    id: success-metrics
+    attributes:
+      label: Success Metrics
+      description: How will success be measured?
+      placeholder: |
+        - User adoption metrics
+        - Performance benchmarks
+        - User satisfaction scores
+        - Business KPIs
+        - Technical metrics
+
+  - type: textarea
+    id: timeline
+    attributes:
+      label: Estimated Timeline
+      description: What is the estimated timeline for this epic?
+      placeholder: |
+        - Research and planning: [timeframe]
+        - Development: [timeframe]
+        - Testing: [timeframe]
+        - Deployment: [timeframe]
+        - Total estimated duration: [timeframe]
+
+  - type: textarea
+    id: related-issues
+    attributes:
+      label: Related Issues
+      description: Link to related issues, sub-tasks, or dependencies
+      placeholder: |
+        Sub-issues:
+        - [ ] #XXX - [Brief description]
+        - [ ] #XXX - [Brief description]
+        
+        Related issues:
+        - #XXX - [Brief description]
+        - #XXX - [Brief description]
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information, mockups, or references
+      placeholder: |
+        Include any additional context:
+        - Links to research or specifications
+        - Mockups or wireframes
+        - Competitive analysis
+        - User feedback
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define what needs to be completed for this epic to be considered done
+
+      value: |
+        - [ ] All user stories are implemented and tested
+        - [ ] User interface is complete and user-friendly
+        - [ ] Performance meets defined benchmarks
+        - [ ] Security requirements are met
+        - [ ] Documentation is complete and up-to-date
+        - [ ] All tests pass (unit, integration, e2e)
+        - [ ] Feature is successfully deployed to production
+        - [ ] Success metrics show positive results
+        - [ ] User feedback is positive
+        - [ ] No critical bugs or performance issues
+    validations:
+      required: true

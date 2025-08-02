@@ -1,0 +1,118 @@
+name: 📚 Documentation Issue
+description: Report missing, incorrect, or unclear documentation
+title: "[DOCS] "
+labels: ["documentation", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us improve our documentation! Please provide details about what documentation needs attention.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation needs attention?
+      options:
+        - API Documentation
+        - User Guide/Tutorial
+        - Installation Instructions
+        - Developer Documentation
+        - Code Comments
+        - README
+        - Configuration Guide
+        - Troubleshooting Guide
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Documentation Location
+      description: Where is the documentation located? Provide links or file paths.
+      placeholder: |
+        - URL: https://...
+        - File: path/to/file.md
+        - Section: "Getting Started" section
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What kind of documentation issue is this?
+      options:
+        - Missing documentation
+        - Incorrect information
+        - Unclear/confusing content
+        - Outdated information
+        - Broken links/references
+        - Poor organization
+        - Typos/grammar errors
+        - Missing examples
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current Content
+      description: What does the current documentation say? (if applicable)
+      placeholder: Copy the current content that needs to be fixed...
+
+  - type: textarea
+    id: expected-content
+    attributes:
+      label: Expected Content
+      description: What should the documentation say instead?
+      placeholder: Describe what the documentation should contain or how it should be improved...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Why is this documentation important? Who would benefit from this improvement?
+      placeholder: |
+        - Target audience: [e.g. new users, developers, contributors]
+        - Use case: [e.g. setting up development environment, understanding API]
+        - Impact: [e.g. reduces support questions, improves onboarding]
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples/References
+      description: Provide examples of good documentation or references to what you're looking for
+      placeholder: |
+        Links to good examples or describe what format/style you'd like to see...
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context about this documentation issue
+      placeholder: Screenshots, related issues, or additional information...
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define what needs to be done to consider this documentation issue resolved
+
+      value: |
+        - [ ] Documentation is accurate and up-to-date
+        - [ ] Content is clear and easy to understand
+        - [ ] Examples are provided where appropriate
+        - [ ] Links and references work correctly
+        - [ ] Documentation follows project style guide
+        - [ ] Content is properly organized and structured
+    validations:
+      required: true

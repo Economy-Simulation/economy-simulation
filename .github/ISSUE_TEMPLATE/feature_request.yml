@@ -1,0 +1,111 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement
+title: "[FEATURE] "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a new feature! Please provide detailed information about your idea.
+
+  - type: textarea
+    id: feature-summary
+    attributes:
+      label: Feature Summary
+      description: A brief summary of the feature you'd like to see implemented
+      placeholder: Provide a concise summary of the feature...
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What user need does it address?
+      placeholder: Describe the problem or user need this feature would address...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your proposed solution in detail
+      placeholder: |
+        How should this feature work? What should the user experience be like?
+        Include any UI/UX considerations, API changes, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: Describe any alternative approaches you've considered...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Low - Nice to have
+        - Medium - Would improve workflow
+        - High - Critical for my use case
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Estimated Complexity
+      description: How complex do you think this feature would be to implement?
+      options:
+        - Low - Simple change or addition
+        - Medium - Moderate development effort
+        - High - Significant development effort
+        - Unknown - Not sure
+
+  - type: textarea
+    id: user-stories
+    attributes:
+      label: User Stories
+      description: Describe how different users would interact with this feature
+      placeholder: |
+        As a [type of user], I want [goal] so that [benefit]
+        
+        Example:
+        As a simulation researcher, I want to export simulation data to CSV so that I can analyze it in external tools.
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups/Examples
+      description: If applicable, provide mockups, examples, or references
+      placeholder: Add any visual mockups, code examples, or links to similar implementations...
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or information about the feature request
+      placeholder: Provide any additional context that would be helpful...
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define what needs to be implemented for this feature to be considered complete
+
+      value: |
+        - [ ] Feature functionality works as described
+        - [ ] User interface is intuitive and accessible
+        - [ ] Feature is properly documented
+        - [ ] Unit and integration tests are implemented
+        - [ ] Performance impact is minimal
+        - [ ] Feature can be enabled/disabled if applicable
+    validations:
+      required: true

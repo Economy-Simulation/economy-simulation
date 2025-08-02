@@ -1,0 +1,107 @@
+name: ❓ Question/Support
+description: Ask a question or request support
+title: "[QUESTION] "
+labels: ["question", "support"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question about the economy simulation project? Need help with setup, usage, or understanding how something works? We're here to help!
+
+  - type: dropdown
+    id: question-category
+    attributes:
+      label: Question Category
+      description: What type of question is this?
+      options:
+        - Setup/Installation
+        - Usage/How-to
+        - Configuration
+        - Troubleshooting
+        - Understanding Code/Architecture
+        - Best Practices
+        - Performance
+        - Contributing/Development
+        - API Usage
+        - Simulation Theory/Economics
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+      placeholder: Please describe your question in detail...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide context about what you're trying to accomplish
+      placeholder: |
+        What are you trying to do? What is your use case?
+        Are you a researcher, student, developer, or other type of user?
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-tried
+    attributes:
+      label: What You've Tried
+      description: Have you tried anything already? What resources have you consulted?
+      placeholder: |
+        - Searched documentation
+        - Looked at example code
+        - Tried specific approaches
+        - Consulted external resources
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: If relevant, provide details about your environment
+      placeholder: |
+        - OS: [e.g. Windows 11, macOS 12.0, Ubuntu 20.04]
+        - Python Version: [e.g. 3.9.7]
+        - Node.js Version: [e.g. 16.13.0]
+        - Browser: [e.g. Chrome 95, Firefox 94]
+        - Project Version/Branch: [e.g. main, v1.2.3]
+
+  - type: textarea
+    id: expected-outcome
+    attributes:
+      label: Expected Outcome
+      description: What do you expect to happen or what result are you looking for?
+      placeholder: Describe what you're hoping to achieve...
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information
+      placeholder: |
+        - Screenshots or error messages
+        - Links to relevant documentation
+        - Related issues or discussions
+        - Code snippets (if applicable)
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: How will you know when your question has been adequately answered?
+
+      value: |
+        - [ ] Clear explanation provided for the question
+        - [ ] Working solution or approach is demonstrated
+        - [ ] Related documentation is referenced or created
+        - [ ] Any misunderstandings are clarified
+        - [ ] Follow-up questions are answered
+    validations:
+      required: true
