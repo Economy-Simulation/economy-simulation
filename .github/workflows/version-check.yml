@@ -167,6 +167,10 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     name: Preview Version Impact
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: read
     
     steps:
     - name: Checkout PR
