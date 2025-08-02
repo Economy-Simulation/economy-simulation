@@ -1,0 +1,148 @@
+name: 🔧 Task/Chore
+description: General tasks, maintenance, or housekeeping items
+title: "[TASK] "
+labels: ["task", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for general tasks, maintenance work, refactoring, or other housekeeping items.
+
+  - type: textarea
+    id: task-description
+    attributes:
+      label: Task Description
+      description: Describe the task that needs to be completed
+      placeholder: What needs to be done and why?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: task-category
+    attributes:
+      label: Task Category
+      description: What type of task is this?
+      options:
+        - Code Refactoring
+        - Performance Optimization
+        - Security Update
+        - Dependency Update
+        - Build/CI Improvement
+        - Testing Improvement
+        - Code Cleanup
+        - Configuration Change
+        - Database Migration
+        - Infrastructure Update
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this task?
+      options:
+        - Low - Can be done when time permits
+        - Medium - Should be done in next release cycle
+        - High - Should be done soon
+        - Critical - Needs immediate attention
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why is this task important? What problem does it solve?
+      placeholder: |
+        What is the motivation for this task?
+        What problems will it solve or benefits will it provide?
+    validations:
+      required: true
+
+  - type: textarea
+    id: approach
+    attributes:
+      label: Proposed Approach
+      description: How should this task be approached? Any specific requirements or constraints?
+      placeholder: |
+        Describe the approach or methodology for completing this task.
+        Include any technical requirements, constraints, or considerations.
+
+  - type: textarea
+    id: files-affected
+    attributes:
+      label: Files/Components Affected
+      description: Which files, modules, or components will be affected by this task?
+      placeholder: |
+        List the files, directories, or components that will be modified:
+        - backend/global_economy_sim/...
+        - frontend/src/...
+        - configuration files...
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Are there any dependencies or prerequisites for this task?
+      placeholder: |
+        - Depends on completion of issue #123
+        - Requires approval from team lead
+        - Need to coordinate with other developers
+
+  - type: textarea
+    id: testing-strategy
+    attributes:
+      label: Testing Strategy
+      description: How should this task be tested or validated?
+      placeholder: |
+        Describe how to verify the task is completed successfully:
+        - Unit tests to run
+        - Manual testing steps
+        - Performance benchmarks
+        - Integration testing
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and Considerations
+      description: Are there any risks or important considerations for this task?
+      placeholder: |
+        - Potential breaking changes
+        - Performance impact
+        - Security considerations
+        - Backward compatibility
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information about this task
+      placeholder: Links to related discussions, documentation, or external resources...
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define what needs to be completed for this task to be considered done
+      placeholder: |
+        - [ ] Task implementation is complete and working
+        - [ ] Code follows project standards and guidelines
+        - [ ] All tests pass (existing and new)
+        - [ ] Documentation is updated if needed
+        - [ ] No regression in existing functionality
+        - [ ] Code is reviewed and approved
+        - [ ] Changes are properly tested in relevant environments
+      value: |
+        - [ ] Task implementation is complete and working
+        - [ ] Code follows project standards and guidelines
+        - [ ] All tests pass (existing and new)
+        - [ ] Documentation is updated if needed
+        - [ ] No regression in existing functionality
+        - [ ] Code is reviewed and approved
+        - [ ] Changes are properly tested in relevant environments
+    validations:
+      required: true

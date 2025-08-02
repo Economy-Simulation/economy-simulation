@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discussions
+    url: https://github.com/Economy-Simulation/economy-simulation/discussions
+    about: For general discussions, ideas, and community questions
+  - name: 📖 Documentation
+    url: https://github.com/Economy-Simulation/economy-simulation/wiki
+    about: Check our documentation and wiki for guides and references
+  - name: 🔒 Security Issues
+    url: https://github.com/Economy-Simulation/economy-simulation/security/advisories/new
+    about: Report security vulnerabilities privately

@@ -1,0 +1,96 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report a bug! Please fill out the information below to help us understand and reproduce the issue.
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe what happened and what you expected to happen...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+      placeholder: What should have happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened when you performed the steps above?
+      placeholder: What actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Please provide information about your environment
+      placeholder: |
+        - OS: [e.g. Windows 11, macOS 12.0, Ubuntu 20.04]
+        - Browser: [e.g. Chrome 95, Firefox 94, Safari 15]
+        - Python Version: [e.g. 3.9.7]
+        - Node.js Version: [e.g. 16.13.0]
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots/Logs
+      description: If applicable, add screenshots or error logs to help explain your problem.
+      placeholder: Paste screenshots or error logs here...
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here.
+      placeholder: Any additional information that might be helpful...
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define what needs to be done to consider this bug fixed
+      placeholder: |
+        - [ ] The bug is no longer reproducible following the steps above
+        - [ ] Related functionality works as expected
+        - [ ] No regression in other features
+        - [ ] Unit/integration tests are added to prevent regression
+      value: |
+        - [ ] The bug is no longer reproducible following the steps above
+        - [ ] Related functionality works as expected
+        - [ ] No regression in other features
+        - [ ] Unit/integration tests are added to prevent regression
+    validations:
+      required: true
